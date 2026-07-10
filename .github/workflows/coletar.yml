@@ -1,8 +1,8 @@
-name: Coleta diária de preços
+name: Coleta de preços sob demanda
 
+# Sem agendamento: a coleta roda só quando pedida (aqui no chat, ou pelo botão
+# "Run workflow" na aba Actions do repositório). Não há execução automática.
 on:
-  schedule:
-    - cron: "0 9 * * *"   # 06:00 em Goiânia (UTC-3)
   workflow_dispatch:
 
 permissions:
