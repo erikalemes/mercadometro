@@ -1,0 +1,102 @@
+{
+  "cidade": "Goiânia-GO",
+  "cep": "74810-100",
+  "categorias": [
+    {
+      "nome": "Básicos da despensa",
+      "termos": [
+        "arroz 5kg",
+        "feijão carioca",
+        "açúcar cristal 2kg",
+        "café 500g",
+        "óleo de soja 900ml",
+        "sal refinado 1kg",
+        "farinha de trigo 1kg",
+        "farinha de mandioca",
+        "macarrão espaguete",
+        "molho de tomate",
+        "azeite de oliva extra virgem 500ml",
+        "vinagre de álcool"
+      ]
+    },
+    {
+      "nome": "Café da manhã e frios",
+      "termos": [
+        "leite integral 1l",
+        "pão de forma",
+        "margarina 500g",
+        "manteiga 200g",
+        "requeijão cremoso",
+        "queijo mussarela fatiado",
+        "presunto fatiado",
+        "ovos",
+        "achocolatado em pó 400g",
+        "biscoito cream cracker",
+        "biscoito recheado chocolate"
+      ]
+    },
+    {
+      "nome": "Carnes e congelados",
+      "termos": [
+        "frango inteiro congelado",
+        "filé de peito de frango",
+        "carne moída bovina",
+        "linguiça toscana",
+        "salsicha",
+        "hambúrguer congelado"
+      ]
+    },
+    {
+      "nome": "Hortifruti",
+      "termos": [
+        "tomate",
+        "cebola",
+        "batata inglesa",
+        "banana"
+      ]
+    },
+    {
+      "nome": "Mercearia e enlatados",
+      "termos": [
+        "leite condensado 395g",
+        "creme de leite 200g",
+        "milho verde em conserva",
+        "atum em óleo lata",
+        "maionese 500g",
+        "ketchup",
+        "extrato de tomate"
+      ]
+    },
+    {
+      "nome": "Bebidas",
+      "termos": [
+        "refrigerante 2l",
+        "suco de uva integral 1,5l",
+        "água mineral sem gás 1,5l",
+        "cerveja lata"
+      ]
+    },
+    {
+      "nome": "Limpeza",
+      "termos": [
+        "detergente",
+        "sabão em pó",
+        "água sanitária 2 litros",
+        "amaciante de roupas 2 litros",
+        "desinfetante 2 litros",
+        "esponja aço",
+        "papel toalha"
+      ]
+    },
+    {
+      "nome": "Higiene",
+      "termos": [
+        "papel higiênico 12 rolos",
+        "sabonete em barra 85g",
+        "creme dental 90g",
+        "shampoo 350ml",
+        "desodorante aerosol"
+      ]
+    }
+  ]
+}

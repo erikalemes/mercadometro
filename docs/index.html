@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MercadôMetro · Preços de mercado em Goiânia</title>
+<style>
+  :root {
+    --fundo: #f6f7f4; --cartao: #ffffff; --tinta: #1c2320; --tinta2: #5b6660;
+    --borda: #e2e6e1; --verde: #1a7f4b; --verde-claro: #e7f4ec;
+    --dourado: #b57f1f; --vermelho: #b3382f; --sombra: 0 1px 3px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #141816; --cartao: #1e2421; --tinta: #e8ece9; --tinta2: #9aa69f;
+      --borda: #2c332f; --verde: #4cc98a; --verde-claro: #1d3328;
+      --dourado: #d9a84e; --vermelho: #e07b72; --sombra: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--fundo); color: var(--tinta);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: var(--verde); color: #fff; padding: 18px 16px 14px; }
+  header h1 { font-size: 1.5rem; letter-spacing: -.02em; }
+  header p { font-size: .85rem; opacity: .92; margin-top: 2px; }
+  nav { display: flex; gap: 6px; background: var(--cartao); padding: 8px 12px;
+    position: sticky; top: 0; z-index: 5; border-bottom: 1px solid var(--borda); }
+  nav button { flex: 1; border: 1px solid var(--borda); background: transparent;
+    color: var(--tinta2); padding: 9px 4px; border-radius: 10px; font-size: .95rem;
+    font-weight: 600; cursor: pointer; }
+  nav button.ativa { background: var(--verde); border-color: var(--verde); color: #fff; }
+  main { max-width: 980px; margin: 0 auto; padding: 14px 12px 90px; }
+  .oculta { display: none !important; }
+
+  #busca { width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 12px;
+    border: 1px solid var(--borda); background: var(--cartao); color: var(--tinta); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 4px; }
+  .chips button { white-space: nowrap; border: 1px solid var(--borda); background: var(--cartao);
+    color: var(--tinta2); border-radius: 999px; padding: 5px 12px; font-size: .82rem; cursor: pointer; }
+  .chips button.ativa { background: var(--verde-claro); color: var(--verde);
+    border-color: var(--verde); font-weight: 700; }
+
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 10px; margin-top: 10px; }
+  .prod { background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
+    padding: 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--sombra); }
+  .prod img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px;
+    background: #fff; }
+  .prod .nome { font-size: .84rem; font-weight: 600; line-height: 1.3; min-height: 2.6em; }
+  .prod .marca { font-size: .72rem; color: var(--tinta2); }
+  .preco { font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; }
+  .preco-de { font-size: .75rem; color: var(--tinta2); text-decoration: line-through; }
+  .queda { color: var(--verde); font-size: .74rem; font-weight: 700; }
+  .alta { color: var(--vermelho); font-size: .74rem; font-weight: 700; }
+  .spark { width: 100%; height: 30px; }
+  .acoes { display: flex; gap: 6px; margin-top: auto; }
+  .acoes a, .acoes button { flex: 1; text-align: center; padding: 8px 4px; font-size: .82rem;
+    font-weight: 700; border-radius: 9px; cursor: pointer; text-decoration: none; }
+  .bt-add { background: var(--verde); color: #fff; border: none; }
+  .bt-site { background: transparent; color: var(--verde); border: 1px solid var(--verde); }
+
+  .painel { background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
+    padding: 14px; margin-top: 10px; box-shadow: var(--sombra); }
+  .item-lista { display: flex; align-items: center; gap: 10px; padding: 10px 0;
+    border-bottom: 1px solid var(--borda); }
+  .item-lista:last-child { border-bottom: none; }
+  .item-lista .info { flex: 1; min-width: 0; }
+  .item-lista .info .nome { font-size: .88rem; font-weight: 600; }
+  .item-lista .info .un { font-size: .78rem; color: var(--tinta2); }
+  .qtd { display: flex; align-items: center; gap: 8px; }
+  .qtd button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--borda);
+    background: var(--fundo); color: var(--tinta); font-size: 1.1rem; cursor: pointer; }
+  .subtotal { width: 82px; text-align: right; font-weight: 700; font-size: .9rem; }
+  .total-bar { display: flex; justify-content: space-between; align-items: center;
+    font-size: 1.05rem; padding-top: 12px; }
+  .total-bar strong { font-size: 1.4rem; letter-spacing: -.02em; }
+  .botoes-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .botoes-lista a, .botoes-lista button { flex: 1 1 45%; text-align: center; padding: 12px 8px;
+    border-radius: 11px; font-weight: 700; font-size: .9rem; cursor: pointer; text-decoration: none; }
+  .bt-primario { background: var(--verde); color: #fff; border: none; }
+  .bt-zap { background: #128c4b; color: #fff; border: none; }
+  .bt-neutro { background: transparent; color: var(--tinta2); border: 1px solid var(--borda); }
+  .vazio { text-align: center; color: var(--tinta2); padding: 30px 10px; font-size: .95rem; }
+  .aviso { font-size: .78rem; color: var(--tinta2); margin-top: 14px; text-align: center; }
+  .selo { display: inline-block; background: var(--verde-claro); color: var(--verde);
+    font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  footer { text-align: center; font-size: .75rem; color: var(--tinta2); padding: 18px 14px 26px; }
+  .contador { background: var(--dourado); color: #fff; border-radius: 999px; font-size: .72rem;
+    padding: 1px 7px; margin-left: 4px; }
+  h2 { font-size: 1.05rem; margin: 14px 2px 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🛒 MercadôMetro</h1>
+  <p id="subtitulo">Preços reais de mercado · Goiânia-GO</p>
+</header>
+
+<nav>
+  <button id="tab-buscar" class="ativa" onclick="mostrar('buscar')">Buscar</button>
+  <button id="tab-lista" onclick="mostrar('lista')">Minha lista<span id="cont-lista" class="contador oculta">0</span></button>
+  <button id="tab-ofertas" onclick="mostrar('ofertas')">Ofertas</button>
+</nav>
+
+<main>
+  <section id="sec-buscar">
+    <input id="busca" type="search" placeholder="Buscar produto (ex.: arroz, café, sabão em pó...)" autocomplete="off">
+    <div class="chips" id="chips"></div>
+    <div class="grade" id="grade"></div>
+    <div id="sem-resultado" class="vazio oculta">Nenhum produto encontrado. Tente outra palavra.</div>
+  </section>
+
+  <section id="sec-lista" class="oculta">
+    <div class="painel" id="painel-lista"></div>
+    <div class="aviso">Os preços são do Atacadão de Goiânia e podem variar até o fechamento
+      da compra. Confira o total no site do mercado antes de pagar.</div>
+  </section>
+
+  <section id="sec-ofertas" class="oculta">
+    <h2>📉 Caiu de preço</h2>
+    <div class="grade" id="grade-quedas"></div>
+    <div id="sem-quedas" class="vazio oculta"></div>
+    <h2>📈 Subiu de preço</h2>
+    <div class="grade" id="grade-altas"></div>
+    <div id="sem-altas" class="vazio oculta"></div>
+  </section>
+</main>
+
+<footer id="rodape"></footer>
+
+<script src="dados.js"></script>
+<script src="historico.js"></script>
+<script>
+const D = window.DADOS || { produtos: [], categorias: [] };
+const H = window.HISTORICO || {};
+const LS_CHAVE = "mercadometro_lista_v1";
+let lista = JSON.parse(localStorage.getItem(LS_CHAVE) || "{}");
+let categoriaAtiva = "";
+
+const brl = v => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const esc = s => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const porId = Object.fromEntries(D.produtos.map(p => [p.id, p]));
+
+function serie(id) {
+  const h = H[id];
+  if (!h) return [];
+  return Object.keys(h.p).sort().map(d => h.p[d]);
+}
+
+function variacao(p) {
+  const s = serie(p.id);
+  if (s.length < 2) return null;
+  const anteriores = s.slice(0, -1);
+  const media = anteriores.reduce((a, b) => a + b, 0) / anteriores.length;
+  if (!media) return null;
+  return (s[s.length - 1] - media) / media * 100;
+}
+
+function sparkline(id) {
+  const s = serie(id).slice(-45);
+  if (s.length < 2) return "";
+  const min = Math.min(...s), max = Math.max(...s), amp = (max - min) || 1;
+  const pts = s.map((v, i) =>
+    `${(i / (s.length - 1) * 100).toFixed(1)},${(26 - (v - min) / amp * 22 + 2).toFixed(1)}`).join(" ");
+  return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" role="img"
+    aria-label="Histórico de preço"><polyline points="${pts}" fill="none"
+    stroke="var(--verde)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+function cardProduto(p) {
+  const v = variacao(p);
+  let selo = "";
+  if (v !== null && Math.abs(v) >= 1) {
+    selo = v < 0 ? `<span class="queda">▼ ${Math.abs(v).toFixed(0)}% abaixo da média</span>`
+                 : `<span class="alta">▲ ${v.toFixed(0)}% acima da média</span>`;
+  }
+  const de = p.precoDe > p.preco ? `<span class="preco-de">${brl(p.precoDe)}</span>` : "";
+  return `<div class="prod">
+    ${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : ""}
+    <div class="nome">${esc(p.nome)}</div>
+    <div class="marca">${esc(p.marca)} · ${esc(p.categoria)}</div>
+    <div><span class="preco">${brl(p.preco)}</span> ${de}</div>
+    ${selo}${sparkline(p.id)}
+    <div class="acoes">
+      <button class="bt-add" onclick="adicionar('${p.id}')">+ Lista</button>
+      <a class="bt-site" href="${esc(p.link)}" target="_blank" rel="noopener">Ver ↗</a>
+    </div></div>`;
+}
+
+function desenharBusca() {
+  const termo = semAcento(document.getElementById("busca").value.trim());
+  let itens = D.produtos;
+  if (categoriaAtiva) itens = itens.filter(p => p.categoria === categoriaAtiva);
+  if (termo) {
+    const palavras = termo.split(/\s+/);
+    itens = itens.filter(p => {
+      const alvo = semAcento(p.nome + " " + p.marca + " " + p.termo);
+      return palavras.every(w => alvo.includes(w));
+    });
+  }
+  itens = itens.slice(0, 120);
+  document.getElementById("grade").innerHTML = itens.map(cardProduto).join("");
+  document.getElementById("sem-resultado").classList.toggle("oculta", itens.length > 0);
+}
+
+function desenharChips() {
+  const el = document.getElementById("chips");
+  el.innerHTML = [`<button class="${!categoriaAtiva ? "ativa" : ""}" onclick="filtrarCat('')">Tudo</button>`]
+    .concat(D.categorias.map(c =>
+      `<button class="${categoriaAtiva === c ? "ativa" : ""}" onclick="filtrarCat('${esc(c)}')">${esc(c)}</button>`))
+    .join("");
+}
+function filtrarCat(c) { categoriaAtiva = c; desenharChips(); desenharBusca(); }
+
+function adicionar(id) {
+  lista[id] = (lista[id] || 0) + 1;
+  salvarLista();
+  const bt = document.getElementById("tab-lista");
+  bt.style.transform = "scale(1.08)"; setTimeout(() => bt.style.transform = "", 150);
+}
+function mudarQtd(id, delta) {
+  lista[id] = (lista[id] || 0) + delta;
+  if (lista[id] <= 0) delete lista[id];
+  salvarLista(); desenharLista();
+}
+function salvarLista() {
+  localStorage.setItem(LS_CHAVE, JSON.stringify(lista));
+  const n = Object.values(lista).reduce((a, b) => a + b, 0);
+  const c = document.getElementById("cont-lista");
+  c.textContent = n; c.classList.toggle("oculta", n === 0);
+}
+
+function textoLista() {
+  let linhas = ["🛒 Minha lista de compras (MercadôMetro):", ""];
+  let total = 0;
+  for (const [id, q] of Object.entries(lista)) {
+    const p = porId[id]; if (!p) continue;
+    total += p.preco * q;
+    linhas.push(`• ${q}x ${p.nome} - ${brl(p.preco)}`);
+  }
+  linhas.push("", `Total estimado no Atacadão: ${brl(total)}`);
+  return linhas.join("\n");
+}
+
+function desenharLista() {
+  const el = document.getElementById("painel-lista");
+  const ids = Object.keys(lista).filter(id => porId[id]);
+  if (!ids.length) {
+    el.innerHTML = `<div class="vazio">Sua lista está vazia.<br>Use a aba <b>Buscar</b> e toque
+      em <b>+ Lista</b> nos produtos que você quer.</div>`;
+    return;
+  }
+  let total = 0;
+  const linhas = ids.map(id => {
+    const p = porId[id], q = lista[id], sub = p.preco * q;
+    total += sub;
+    return `<div class="item-lista">
+      <div class="info"><div class="nome">${esc(p.nome)}</div>
+        <div class="un">${brl(p.preco)} cada</div></div>
+      <div class="qtd">
+        <button onclick="mudarQtd('${id}',-1)">−</button><span>${q}</span>
+        <button onclick="mudarQtd('${id}',1)">+</button></div>
+      <div class="subtotal">${brl(sub)}</div></div>`;
+  }).join("");
+  el.innerHTML = linhas +
+    `<div class="total-bar"><span>Total estimado</span><strong>${brl(total)}</strong></div>
+    <div class="botoes-lista">
+      <a class="bt-primario" href="https://www.atacadao.com.br/" target="_blank" rel="noopener">Comprar no Atacadão ↗</a>
+      <a class="bt-zap" href="https://wa.me/?text=${encodeURIComponent(textoLista())}" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+      <a class="bt-neutro" href="https://www.ifood.com.br/mercados" target="_blank" rel="noopener">Ver mercados no iFood ↗</a>
+      <button class="bt-neutro" onclick="if(confirm('Limpar toda a lista?')){lista={};salvarLista();desenharLista();}">Limpar lista</button>
+    </div>`;
+}
+
+function desenharOfertas() {
+  const comVar = D.produtos.map(p => ({ p, v: variacao(p) })).filter(x => x.v !== null);
+  const quedas = comVar.filter(x => x.v <= -2).sort((a, b) => a.v - b.v).slice(0, 24);
+  const altas = comVar.filter(x => x.v >= 2).sort((a, b) => b.v - a.v).slice(0, 24);
+  document.getElementById("grade-quedas").innerHTML = quedas.map(x => cardProduto(x.p)).join("");
+  document.getElementById("grade-altas").innerHTML = altas.map(x => cardProduto(x.p)).join("");
+  const msg = comVar.length === 0
+    ? "O histórico de preços começou hoje. A partir de amanhã, esta aba mostra o que caiu ou subiu de preço."
+    : "Nada relevante por enquanto.";
+  document.getElementById("sem-quedas").classList.toggle("oculta", quedas.length > 0);
+  document.getElementById("sem-quedas").textContent = msg;
+  document.getElementById("sem-altas").classList.toggle("oculta", altas.length > 0);
+  document.getElementById("sem-altas").textContent = msg;
+}
+
+function mostrar(aba) {
+  for (const s of ["buscar", "lista", "ofertas"]) {
+    document.getElementById("sec-" + s).classList.toggle("oculta", s !== aba);
+    document.getElementById("tab-" + s).classList.toggle("ativa", s === aba);
+  }
+  if (aba === "lista") desenharLista();
+  if (aba === "ofertas") desenharOfertas();
+}
+
+(function iniciar() {
+  const dt = D.geradoEm ? new Date(D.geradoEm) : null;
+  document.getElementById("subtitulo").textContent =
+    `${D.mercado ? D.mercado.nome : ""} · ${D.cidade || ""}` +
+    (dt ? ` · preços de ${dt.toLocaleDateString("pt-BR")}` : "");
+  document.getElementById("rodape").innerHTML =
+    `<span class="selo">${D.produtos.length} produtos monitorados</span><br><br>
+    Preços coletados automaticamente todos os dias na loja online do Atacadão para Goiânia.
+    Este site não vende nada: a compra é finalizada no site do mercado ou no iFood.`;
+  desenharChips(); desenharBusca(); salvarLista();
+  document.getElementById("busca").addEventListener("input", desenharBusca);
+})();
+</script>
+</body>
+</html>
