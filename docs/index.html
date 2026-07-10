@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MercadôMetro · Preços de mercado em Goiânia</title>
+<title>MercadôMetro · Compare preços de mercado em Goiânia</title>
 <style>
   :root {
     --fundo: #f6f7f4; --cartao: #ffffff; --tinta: #1c2320; --tinta2: #5b6660;
     --borda: #e2e6e1; --verde: #1a7f4b; --verde-claro: #e7f4ec;
     --dourado: #b57f1f; --vermelho: #b3382f; --sombra: 0 1px 3px rgba(0,0,0,.08);
+    --azul: #2c5f8a; --azul-claro: #e6eef5;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --fundo: #141816; --cartao: #1e2421; --tinta: #e8ece9; --tinta2: #9aa69f;
       --borda: #2c332f; --verde: #4cc98a; --verde-claro: #1d3328;
       --dourado: #d9a84e; --vermelho: #e07b72; --sombra: 0 1px 3px rgba(0,0,0,.4);
+      --azul: #6fa8d6; --azul-claro: #1c2c39;
     }
   }
   * { box-sizing: border-box; margin: 0; }
@@ -34,7 +36,7 @@
 
   #busca { width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 12px;
     border: 1px solid var(--borda); background: var(--cartao); color: var(--tinta); }
-  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 4px; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 2px; }
   .chips button { white-space: nowrap; border: 1px solid var(--borda); background: var(--cartao);
     color: var(--tinta2); border-radius: 999px; padding: 5px 12px; font-size: .82rem; cursor: pointer; }
   .chips button.ativa { background: var(--verde-claro); color: var(--verde);
@@ -44,14 +46,20 @@
     gap: 10px; margin-top: 10px; }
   .prod { background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
     padding: 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--sombra); }
-  .prod img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px;
-    background: #fff; }
+  .prod img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: #fff; }
   .prod .nome { font-size: .84rem; font-weight: 600; line-height: 1.3; min-height: 2.6em; }
   .prod .marca { font-size: .72rem; color: var(--tinta2); }
+  .tag-mercado { display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .02em;
+    padding: 2px 7px; border-radius: 999px; }
+  .m-atacadao { background: var(--verde-claro); color: var(--verde); }
+  .m-sams { background: var(--azul-claro); color: var(--azul); }
   .preco { font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; }
   .preco-de { font-size: .75rem; color: var(--tinta2); text-decoration: line-through; }
   .queda { color: var(--verde); font-size: .74rem; font-weight: 700; }
   .alta { color: var(--vermelho); font-size: .74rem; font-weight: 700; }
+  .barato { background: var(--verde); color: #fff; font-size: .7rem; font-weight: 700;
+    padding: 3px 7px; border-radius: 7px; display: inline-block; }
+  .caro { color: var(--tinta2); font-size: .72rem; }
   .spark { width: 100%; height: 30px; }
   .acoes { display: flex; gap: 6px; margin-top: auto; }
   .acoes a, .acoes button { flex: 1; text-align: center; padding: 8px 4px; font-size: .82rem;
@@ -74,10 +82,14 @@
   .total-bar { display: flex; justify-content: space-between; align-items: center;
     font-size: 1.05rem; padding-top: 12px; }
   .total-bar strong { font-size: 1.4rem; letter-spacing: -.02em; }
+  .totais-mercado { display: flex; flex-direction: column; gap: 6px; padding-top: 10px;
+    border-top: 1px solid var(--borda); margin-top: 10px; }
+  .linha-mercado { display: flex; justify-content: space-between; font-size: .9rem; }
   .botoes-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .botoes-lista a, .botoes-lista button { flex: 1 1 45%; text-align: center; padding: 12px 8px;
     border-radius: 11px; font-weight: 700; font-size: .9rem; cursor: pointer; text-decoration: none; }
   .bt-primario { background: var(--verde); color: #fff; border: none; }
+  .bt-sams { background: var(--azul); color: #fff; border: none; }
   .bt-zap { background: #128c4b; color: #fff; border: none; }
   .bt-neutro { background: transparent; color: var(--tinta2); border: 1px solid var(--borda); }
   .vazio { text-align: center; color: var(--tinta2); padding: 30px 10px; font-size: .95rem; }
@@ -88,32 +100,47 @@
   .contador { background: var(--dourado); color: #fff; border-radius: 999px; font-size: .72rem;
     padding: 1px 7px; margin-left: 4px; }
   h2 { font-size: 1.05rem; margin: 14px 2px 4px; }
+  .comp { background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px;
+    padding: 12px; margin-bottom: 8px; box-shadow: var(--sombra); }
+  .comp .nome { font-size: .88rem; font-weight: 600; margin-bottom: 8px; }
+  .comp-linha { display: flex; justify-content: space-between; align-items: center;
+    font-size: .85rem; padding: 3px 0; }
+  .economia { font-size: .78rem; color: var(--verde); font-weight: 700; margin-top: 6px; }
 </style>
 </head>
 <body>
 <header>
   <h1>🛒 MercadôMetro</h1>
-  <p id="subtitulo">Preços reais de mercado · Goiânia-GO</p>
+  <p id="subtitulo">Compare preços · Goiânia-GO</p>
 </header>
 
 <nav>
   <button id="tab-buscar" class="ativa" onclick="mostrar('buscar')">Buscar</button>
-  <button id="tab-lista" onclick="mostrar('lista')">Minha lista<span id="cont-lista" class="contador oculta">0</span></button>
+  <button id="tab-comparar" onclick="mostrar('comparar')">Comparar</button>
+  <button id="tab-lista" onclick="mostrar('lista')">Lista<span id="cont-lista" class="contador oculta">0</span></button>
   <button id="tab-ofertas" onclick="mostrar('ofertas')">Ofertas</button>
 </nav>
 
 <main>
   <section id="sec-buscar">
     <input id="busca" type="search" placeholder="Buscar produto (ex.: arroz, café, sabão em pó...)" autocomplete="off">
+    <div class="chips" id="chips-mercado"></div>
     <div class="chips" id="chips"></div>
     <div class="grade" id="grade"></div>
     <div id="sem-resultado" class="vazio oculta">Nenhum produto encontrado. Tente outra palavra.</div>
   </section>
 
+  <section id="sec-comparar" class="oculta">
+    <h2>⚖️ Mesmo produto, preços diferentes</h2>
+    <p class="aviso" style="text-align:left;margin:2px 2px 10px">Produtos com o mesmo código de
+      barras encontrados nos dois mercados.</p>
+    <div id="lista-comp"></div>
+  </section>
+
   <section id="sec-lista" class="oculta">
     <div class="painel" id="painel-lista"></div>
-    <div class="aviso">Os preços são do Atacadão de Goiânia e podem variar até o fechamento
-      da compra. Confira o total no site do mercado antes de pagar.</div>
+    <div class="aviso">Os preços vêm das lojas online e podem variar até o fechamento da compra.
+      Confira o total no site do mercado antes de pagar.</div>
   </section>
 
   <section id="sec-ofertas" class="oculta">
@@ -128,33 +155,37 @@
 
 <footer id="rodape"></footer>
 
-<script src="dados.js"></script>
-<script src="historico.js"></script>
 <script>
-const D = window.DADOS || { produtos: [], categorias: [] };
+  // Carrega os dados com cache-busting diário para o navegador nunca mostrar preço velho.
+  const _v = new Date().toISOString().slice(0, 10);
+  document.write(`<script src="dados.js?v=${_v}"><\/script>`);
+  document.write(`<script src="historico.js?v=${_v}"><\/script>`);
+</script>
+<script>
+const D = window.DADOS || { produtos: [], categorias: [], mercados: [], comparaveis: {} };
 const H = window.HISTORICO || {};
 const LS_CHAVE = "mercadometro_lista_v1";
 let lista = JSON.parse(localStorage.getItem(LS_CHAVE) || "{}");
-let categoriaAtiva = "";
+let categoriaAtiva = "", mercadoAtivo = "";
 
 const brl = v => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const esc = s => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const porId = Object.fromEntries(D.produtos.map(p => [p.id, p]));
+const mercadoPor = Object.fromEntries((D.mercados || []).map(m => [m.chave, m]));
+const nomeMercado = c => (mercadoPor[c] || {}).nome || c;
 
 function serie(id) {
   const h = H[id];
-  if (!h) return [];
-  return Object.keys(h.p).sort().map(d => h.p[d]);
+  return h ? Object.keys(h.p).sort().map(d => h.p[d]) : [];
 }
 
 function variacao(p) {
   const s = serie(p.id);
   if (s.length < 2) return null;
-  const anteriores = s.slice(0, -1);
-  const media = anteriores.reduce((a, b) => a + b, 0) / anteriores.length;
-  if (!media) return null;
-  return (s[s.length - 1] - media) / media * 100;
+  const ant = s.slice(0, -1);
+  const media = ant.reduce((a, b) => a + b, 0) / ant.length;
+  return media ? (s[s.length - 1] - media) / media * 100 : null;
 }
 
 function sparkline(id) {
@@ -168,6 +199,31 @@ function sparkline(id) {
     stroke="var(--verde)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
+// Comparativo por código de barras, sempre pelo preço POR UNIDADE, porque um
+// mercado pode vender a lata avulsa e o outro o fardo com o mesmo código.
+// {ean: {mercado: {precoUnit, preco, emb, id}}}
+function compara(p) {
+  const c = (D.comparaveis || {})[p.ean];
+  if (!c || !c[p.mercado]) return "";
+  const outroNome = Object.keys(c).find(m => m !== p.mercado);
+  if (!outroNome) return "";
+  const meu = c[p.mercado], outro = c[outroNome];
+  const dif = outro.precoUnit - meu.precoUnit;
+  const un = x => x.emb > 1 ? ` (${brl(x.precoUnit)}/un)` : "";
+  if (dif > 0.005) {
+    return `<span class="barato">✓ ${brl(dif)}/un mais barato que ${esc(nomeMercado(outroNome))}</span>`;
+  }
+  if (dif < -0.005) {
+    return `<span class="caro">${esc(nomeMercado(outroNome))}: ${brl(outro.preco)}${un(outro)}</span>`;
+  }
+  return `<span class="caro">Mesmo preço no ${esc(nomeMercado(outroNome))}</span>`;
+}
+
+function infoEmbalagem(p) {
+  return p.emb > 1
+    ? `<div class="marca">Pacote com ${p.emb} un · ${brl(p.precoUnit)} cada</div>` : "";
+}
+
 function cardProduto(p) {
   const v = variacao(p);
   let selo = "";
@@ -178,12 +234,13 @@ function cardProduto(p) {
   const de = p.precoDe > p.preco ? `<span class="preco-de">${brl(p.precoDe)}</span>` : "";
   return `<div class="prod">
     ${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : ""}
+    <div><span class="tag-mercado m-${esc(p.mercado)}">${esc(nomeMercado(p.mercado))}</span></div>
     <div class="nome">${esc(p.nome)}</div>
     <div class="marca">${esc(p.marca)} · ${esc(p.categoria)}</div>
     <div><span class="preco">${brl(p.preco)}</span> ${de}</div>
-    ${selo}${sparkline(p.id)}
+    ${infoEmbalagem(p)}${compara(p)}${selo}${sparkline(p.id)}
     <div class="acoes">
-      <button class="bt-add" onclick="adicionar('${p.id}')">+ Lista</button>
+      <button class="bt-add" onclick="adicionar('${esc(p.id)}')">+ Lista</button>
       <a class="bt-site" href="${esc(p.link)}" target="_blank" rel="noopener">Ver ↗</a>
     </div></div>`;
 }
@@ -191,6 +248,7 @@ function cardProduto(p) {
 function desenharBusca() {
   const termo = semAcento(document.getElementById("busca").value.trim());
   let itens = D.produtos;
+  if (mercadoAtivo) itens = itens.filter(p => p.mercado === mercadoAtivo);
   if (categoriaAtiva) itens = itens.filter(p => p.categoria === categoriaAtiva);
   if (termo) {
     const palavras = termo.split(/\s+/);
@@ -199,19 +257,25 @@ function desenharBusca() {
       return palavras.every(w => alvo.includes(w));
     });
   }
-  itens = itens.slice(0, 120);
+  itens = itens.slice(0, 150);
   document.getElementById("grade").innerHTML = itens.map(cardProduto).join("");
   document.getElementById("sem-resultado").classList.toggle("oculta", itens.length > 0);
 }
 
 function desenharChips() {
-  const el = document.getElementById("chips");
-  el.innerHTML = [`<button class="${!categoriaAtiva ? "ativa" : ""}" onclick="filtrarCat('')">Tudo</button>`]
+  document.getElementById("chips-mercado").innerHTML =
+    [`<button class="${!mercadoAtivo ? "ativa" : ""}" onclick="filtrarMercado('')">Todos os mercados</button>`]
+    .concat((D.mercados || []).map(m =>
+      `<button class="${mercadoAtivo === m.chave ? "ativa" : ""}" onclick="filtrarMercado('${esc(m.chave)}')">${esc(m.nome)}</button>`))
+    .join("");
+  document.getElementById("chips").innerHTML =
+    [`<button class="${!categoriaAtiva ? "ativa" : ""}" onclick="filtrarCat('')">Tudo</button>`]
     .concat(D.categorias.map(c =>
       `<button class="${categoriaAtiva === c ? "ativa" : ""}" onclick="filtrarCat('${esc(c)}')">${esc(c)}</button>`))
     .join("");
 }
 function filtrarCat(c) { categoriaAtiva = c; desenharChips(); desenharBusca(); }
+function filtrarMercado(m) { mercadoAtivo = m; desenharChips(); desenharBusca(); }
 
 function adicionar(id) {
   lista[id] = (lista[id] || 0) + 1;
@@ -232,15 +296,33 @@ function salvarLista() {
 }
 
 function textoLista() {
-  let linhas = ["🛒 Minha lista de compras (MercadôMetro):", ""];
+  const linhas = ["🛒 Minha lista de compras (MercadôMetro):", ""];
   let total = 0;
   for (const [id, q] of Object.entries(lista)) {
     const p = porId[id]; if (!p) continue;
     total += p.preco * q;
-    linhas.push(`• ${q}x ${p.nome} - ${brl(p.preco)}`);
+    linhas.push(`• ${q}x ${p.nome} (${nomeMercado(p.mercado)}) - ${brl(p.preco)}`);
   }
-  linhas.push("", `Total estimado no Atacadão: ${brl(total)}`);
+  linhas.push("", `Total estimado: ${brl(total)}`);
   return linhas.join("\n");
+}
+
+// Quanto custaria a mesma quantidade de produto em cada mercado. Como um pode
+// vender fardo e o outro unidade, o equivalente é preço-por-unidade x unidades.
+function totaisPorMercado() {
+  const totais = {}, faltantes = {};
+  for (const m of (D.mercados || [])) { totais[m.chave] = 0; faltantes[m.chave] = 0; }
+  for (const [id, q] of Object.entries(lista)) {
+    const p = porId[id]; if (!p) continue;
+    const comp = (D.comparaveis || {})[p.ean];
+    for (const m of (D.mercados || [])) {
+      if (m.chave === p.mercado) { totais[m.chave] += p.preco * q; continue; }
+      const par = comp && comp[m.chave];
+      if (par) totais[m.chave] += par.precoUnit * p.emb * q;
+      else faltantes[m.chave] += q;
+    }
+  }
+  return { totais, faltantes };
 }
 
 function desenharLista() {
@@ -257,20 +339,60 @@ function desenharLista() {
     total += sub;
     return `<div class="item-lista">
       <div class="info"><div class="nome">${esc(p.nome)}</div>
-        <div class="un">${brl(p.preco)} cada</div></div>
+        <div class="un"><span class="tag-mercado m-${esc(p.mercado)}">${esc(nomeMercado(p.mercado))}</span>
+        ${brl(p.preco)}${p.emb > 1 ? ` (${p.emb} un · ${brl(p.precoUnit)} cada)` : " cada"}</div></div>
       <div class="qtd">
-        <button onclick="mudarQtd('${id}',-1)">−</button><span>${q}</span>
-        <button onclick="mudarQtd('${id}',1)">+</button></div>
+        <button onclick="mudarQtd('${esc(id)}',-1)">−</button><span>${q}</span>
+        <button onclick="mudarQtd('${esc(id)}',1)">+</button></div>
       <div class="subtotal">${brl(sub)}</div></div>`;
   }).join("");
+
+  const { totais, faltantes } = totaisPorMercado();
+  const comparativo = (D.mercados || []).map(m => {
+    const falta = faltantes[m.chave]
+      ? ` <span class="caro">(${faltantes[m.chave]} item(ns) sem equivalente)</span>` : "";
+    return `<div class="linha-mercado"><span>Cesta toda no ${esc(m.nome)}${falta}</span>
+      <strong>${brl(totais[m.chave])}</strong></div>`;
+  }).join("");
+
   el.innerHTML = linhas +
-    `<div class="total-bar"><span>Total estimado</span><strong>${brl(total)}</strong></div>
+    `<div class="total-bar"><span>Total como está</span><strong>${brl(total)}</strong></div>
+    <div class="totais-mercado">${comparativo}</div>
     <div class="botoes-lista">
       <a class="bt-primario" href="https://www.atacadao.com.br/" target="_blank" rel="noopener">Comprar no Atacadão ↗</a>
+      <a class="bt-sams" href="https://www.samsclub.com.br/" target="_blank" rel="noopener">Comprar no Sam's ↗</a>
       <a class="bt-zap" href="https://wa.me/?text=${encodeURIComponent(textoLista())}" target="_blank" rel="noopener">Enviar no WhatsApp</a>
-      <a class="bt-neutro" href="https://www.ifood.com.br/mercados" target="_blank" rel="noopener">Ver mercados no iFood ↗</a>
       <button class="bt-neutro" onclick="if(confirm('Limpar toda a lista?')){lista={};salvarLista();desenharLista();}">Limpar lista</button>
     </div>`;
+}
+
+function desenharComparar() {
+  const comp = D.comparaveis || {};
+  const blocos = Object.keys(comp).map(ean => {
+    // ordena os mercados pelo preço por unidade, do mais barato ao mais caro
+    const linhas = Object.entries(comp[ean]).sort((a, b) => a[1].precoUnit - b[1].precoUnit);
+    const barato = linhas[0][1], caro = linhas[linhas.length - 1][1];
+    const economia = caro.precoUnit - barato.precoUnit;
+    const pct = caro.precoUnit ? economia / caro.precoUnit * 100 : 0;
+    return { linhas, economia, pct, exemplo: porId[barato.id] };
+  }).filter(b => b.exemplo && b.pct >= 1).sort((a, b) => b.pct - a.pct);
+
+  document.getElementById("lista-comp").innerHTML = blocos.length ? blocos.map(b => `
+    <div class="comp">
+      <div class="nome">${esc(b.exemplo.nome)}</div>
+      ${b.linhas.map(([merc, x], i) => `<div class="comp-linha">
+        <span class="tag-mercado m-${esc(merc)}">${esc(nomeMercado(merc))}</span>
+        <span><b>${brl(x.precoUnit)}</b>/un${x.emb > 1 ? ` <span class="caro">(pacote ${x.emb} un: ${brl(x.preco)})</span>` : ""}
+        ${i === 0 ? ' <span class="barato">mais barato</span>' : ""}</span>
+      </div>`).join("")}
+      <div class="economia">Economia de ${brl(b.economia)} por unidade (${b.pct.toFixed(0)}%)
+        comprando no ${esc(nomeMercado(b.linhas[0][0]))}</div>
+      <div class="acoes" style="margin-top:8px">
+        <button class="bt-add" onclick="adicionar('${esc(b.exemplo.id)}')">+ Lista (mais barato)</button>
+        <a class="bt-site" href="${esc(b.exemplo.link)}" target="_blank" rel="noopener">Ver ↗</a>
+      </div>
+    </div>`).join("")
+    : `<div class="vazio">Nenhum produto idêntico com diferença de preço hoje.</div>`;
 }
 
 function desenharOfertas() {
@@ -282,17 +404,17 @@ function desenharOfertas() {
   const msg = comVar.length === 0
     ? "O histórico de preços começou hoje. A partir de amanhã, esta aba mostra o que caiu ou subiu de preço."
     : "Nada relevante por enquanto.";
-  document.getElementById("sem-quedas").classList.toggle("oculta", quedas.length > 0);
-  document.getElementById("sem-quedas").textContent = msg;
-  document.getElementById("sem-altas").classList.toggle("oculta", altas.length > 0);
-  document.getElementById("sem-altas").textContent = msg;
+  const q = document.getElementById("sem-quedas"), a = document.getElementById("sem-altas");
+  q.classList.toggle("oculta", quedas.length > 0); q.textContent = msg;
+  a.classList.toggle("oculta", altas.length > 0); a.textContent = msg;
 }
 
 function mostrar(aba) {
-  for (const s of ["buscar", "lista", "ofertas"]) {
+  for (const s of ["buscar", "comparar", "lista", "ofertas"]) {
     document.getElementById("sec-" + s).classList.toggle("oculta", s !== aba);
     document.getElementById("tab-" + s).classList.toggle("ativa", s === aba);
   }
+  if (aba === "comparar") desenharComparar();
   if (aba === "lista") desenharLista();
   if (aba === "ofertas") desenharOfertas();
 }
@@ -300,12 +422,15 @@ function mostrar(aba) {
 (function iniciar() {
   const dt = D.geradoEm ? new Date(D.geradoEm) : null;
   document.getElementById("subtitulo").textContent =
-    `${D.mercado ? D.mercado.nome : ""} · ${D.cidade || ""}` +
-    (dt ? ` · preços de ${dt.toLocaleDateString("pt-BR")}` : "");
+    `${(D.mercados || []).map(m => m.nome).join(" · ")} · CEP ${D.cep || ""}` +
+    (dt ? ` · ${dt.toLocaleDateString("pt-BR")}` : "");
+  const entregas = (D.mercados || []).map(m =>
+    `<b>${esc(m.nome)}</b>: ${esc(m.entrega)}${m.aviso ? ` (${esc(m.aviso)})` : ""}`).join("<br>");
   document.getElementById("rodape").innerHTML =
-    `<span class="selo">${D.produtos.length} produtos monitorados</span><br><br>
-    Preços coletados automaticamente todos os dias na loja online do Atacadão para Goiânia.
-    Este site não vende nada: a compra é finalizada no site do mercado ou no iFood.`;
+    `<span class="selo">${D.produtos.length} produtos · ${Object.keys(D.comparaveis || {}).length} comparáveis</span>
+    <br><br>${entregas}<br><br>
+    Preços coletados automaticamente todos os dias nas lojas online, para o CEP ${esc(D.cep || "")}.
+    Este site não vende nada: a compra é finalizada no site do mercado.`;
   desenharChips(); desenharBusca(); salvarLista();
   document.getElementById("busca").addEventListener("input", desenharBusca);
 })();
